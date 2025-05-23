@@ -98,7 +98,7 @@ const Header: React.FC = () => {
             className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
             aria-label="Toggle theme"
           >
-            {theme === 'light' ? (
+            {theme === 'dark' ? (
               <Moon className="h-5 w-5 text-slate-700" />
             ) : (
               <Sun className="h-5 w-5 text-slate-200" />

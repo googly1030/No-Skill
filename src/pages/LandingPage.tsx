@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Code, Rocket, GitBranch, Globe, Database, Shield, Zap, ArrowRight , CheckCircle } from 'lucide-react';
+import {  Rocket, GitBranch, Globe, Database, Shield, Zap, ArrowRight , CheckCircle } from 'lucide-react';
 
 const LandingPage: React.FC = () => {
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -10,12 +10,12 @@ const LandingPage: React.FC = () => {
       if (!terminalRef.current) return;
       
       const text = [
-        'git clone https://github.com/username/project.git',
+        'https://github.com/googly1030/No-Skill.git',
         'cd project',
         'npm install',
         'npm run build',
         'Deploying to NOSKILL...',
-        'Deployment complete! Your site is live at username.noskill.com'
+        'Deployment complete! Your site is live at googly1030.noskill.com'
       ];
       
       for (let i = 0; i < text.length; i++) {
@@ -95,21 +95,65 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Logos Section */}
-      <section className="py-16 bg-slate-100 dark:bg-slate-800">
+<section className="py-20 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
         <div className="container mx-auto px-4">
-          <p className="text-center text-slate-500 dark:text-slate-400 mb-8">
-            Trusted by developers from leading companies
-          </p>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
-            {/* Placeholder for company logos */}
-            {['Google', 'Microsoft', 'Amazon', 'Meta', 'Netflix'].map((company, index) => (
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-slate-900 dark:text-white">
+              Join Our Growing Community
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 max-w-md mx-auto">
+              Be part of the next generation of effortless deployment
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            {[
+              { 
+                count: '0', 
+                label: 'Active Projects',
+                description: 'Projects deployed'
+              },
+              { 
+                count: '0', 
+                label: 'Community Members',
+                description: 'Developers joined'
+              },
+              { 
+                count: '0', 
+                label: 'Deployments',
+                description: 'Total deployments'
+              }
+            ].map((stat, index) => (
               <div 
                 key={index} 
-                className="text-slate-400 dark:text-slate-500 font-semibold text-xl"
+                className="bg-white dark:bg-slate-800 rounded-xl p-8 shadow-lg border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
-                {company}
+                <div className="text-center">
+                  <div className="text-4xl md:text-5xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                    {stat.count}
+                  </div>
+                  <div className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
+                    {stat.label}
+                  </div>
+                  <div className="text-sm text-slate-500 dark:text-slate-400">
+                    {stat.description}
+                  </div>
+                </div>
               </div>
             ))}
+          </div>
+          
+          <div className="text-center mt-12">
+            <p className="text-slate-600 dark:text-slate-400 mb-6">
+              Ready to be our first success story?
+            </p>
+            <Link
+              to="/auth"
+              className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-lg hover:shadow-xl"
+            >
+              Start Building Today
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
           </div>
         </div>
       </section>
