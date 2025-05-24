@@ -35,24 +35,37 @@ const DashboardPage: React.FC = () => {
     }
   ]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Create a new project
-    const newProject: Project = {
-      id: Date.now().toString(),
-      name: projectName,
-      domain: `${projectName.toLowerCase().replace(/\s+/g, '-')}.noskill.com`,
-      status: 'deploying'
-    };
-    
-    setProjects([...projects, newProject]);
-    setShowNewProjectForm(false);
-    setProjectName('');
-    setGithubUrl('');
-    
-    // Navigate to deployment page to show logs
-    navigate(`/deployment/${newProject.id}`);
+    try {
+      const response = await fetch('http://localhost:8000/api/deployments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: projectName,
+          github_url: githubUrl,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create deployment');
+      }
+      
+      const newProject = await response.json();
+      setProjects([...projects, newProject]);
+      setShowNewProjectForm(false);
+      setProjectName('');
+      setGithubUrl('');
+      
+      // Navigate to deployment page to show logs
+      navigate(`/deployment/${newProject.id}`);
+    } catch (error) {
+      console.error('Deployment error:', error);
+      alert('Failed to start deployment. Please try again.');
+    }
   };
 
   return (
