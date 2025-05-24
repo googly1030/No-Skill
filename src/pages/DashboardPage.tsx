@@ -38,7 +38,11 @@ const DashboardPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('🚀 Starting deployment with:', { projectName, githubUrl });
+    
     try {
+      console.log('📡 Making API request to: http://localhost:8000/api/deployments');
+      
       const response = await fetch('http://localhost:8000/api/deployments', {
         method: 'POST',
         headers: {
@@ -50,11 +54,19 @@ const DashboardPage: React.FC = () => {
         }),
       });
       
+      console.log('📥 Response status:', response.status);
+      console.log('📥 Response headers:', response.headers);
+      
+      const responseText = await response.text();
+      console.log('📥 Response body:', responseText);
+      
       if (!response.ok) {
-        throw new Error('Failed to create deployment');
+        throw new Error(`HTTP ${response.status}: ${responseText}`);
       }
       
-      const newProject = await response.json();
+      const newProject = JSON.parse(responseText);
+      console.log('✅ Deployment created:', newProject);
+      
       setProjects([...projects, newProject]);
       setShowNewProjectForm(false);
       setProjectName('');
@@ -63,8 +75,16 @@ const DashboardPage: React.FC = () => {
       // Navigate to deployment page to show logs
       navigate(`/deployment/${newProject.id}`);
     } catch (error) {
-      console.error('Deployment error:', error);
-      alert('Failed to start deployment. Please try again.');
+      console.error('❌ Deployment error details:', error);
+      
+      // More specific error messages
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        alert('Cannot connect to backend server. Make sure the backend is running on http://localhost:8000');
+      } else if (error instanceof Error) {
+        alert(`Deployment failed: ${error.message}`);
+      } else {
+        alert('Failed to start deployment. Please try again.');
+      }
     }
   };
 

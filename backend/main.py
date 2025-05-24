@@ -17,7 +17,7 @@ app = FastAPI(title="No-Skill Deployment API", version="1.0.0")
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -119,6 +119,44 @@ async def delete_project(project_id: str):
     projects_db = [p for p in projects_db if p.id != project_id]
     
     return {"message": "Project deleted successfully"}
+
+@app.get("/api/deployments/status")
+async def get_deployment_status():
+    """Get status of all deployments with Docker info"""
+    if not deployment_service:
+        return {"error": "Docker service not available"}
+    
+    try:
+        # Get Docker containers
+        containers = deployment_service.docker_client.containers.list(all=True)
+        noskill_containers = []
+        
+        for container in containers:
+            if container.name.startswith('noskill-'):
+                port_info = container.attrs.get('NetworkSettings', {}).get('Ports', {})
+                assigned_ports = []
+                
+                for port_key, port_data in port_info.items():
+                    if port_data:
+                        for port_mapping in port_data:
+                            assigned_ports.append(f"{port_mapping['HostPort']}:{port_key}")
+                
+                noskill_containers.append({
+                    "name": container.name,
+                    "status": container.status,
+                    "ports": assigned_ports,
+                    "image": container.image.tags[0] if container.image.tags else "unknown",
+                    "created": container.attrs.get('Created', 'unknown')
+                })
+        
+        return {
+            "containers": noskill_containers,
+            "total_projects": len(projects_db),
+            "active_projects": len([p for p in projects_db if p.status == 'active']),
+            "docker_images": len(deployment_service.docker_client.images.list())
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
 if __name__ == "__main__":
     import uvicorn
