@@ -1,3 +1,27 @@
+import os
+import sys
+
+# Force UTF-8 encoding on Windows (improved version)
+if sys.platform == "win32":
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
+    # Try to set UTF-8 locale, fallback if not available
+    try:
+        import locale
+        locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    except locale.Error:
+        try:
+            locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+        except locale.Error:
+            # Fallback to default locale
+            locale.setlocale(locale.LC_ALL, '')
+    
+    # Set console encoding for Windows
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except:
+        pass
+
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, HttpUrl
@@ -8,8 +32,14 @@ from datetime import datetime
 
 from models.project import Project, DeploymentStatus
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Configure logging with UTF-8 encoding
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="No-Skill Deployment API", version="1.0.0")
@@ -24,6 +54,7 @@ app.add_middleware(
 )
 
 # Initialize deployment service
+deployment_service = None
 try:
     from services.deployment_service import DeploymentService
     deployment_service = DeploymentService()
